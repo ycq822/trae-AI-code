@@ -3,10 +3,7 @@ import BackendLayout from '@/components/BackendLayout.vue'
 
 //路由配置
 const backendRoutes=[
-    // {
-    //     path:'/',
-    //     redirect:'/back'
-    // },
+  
     {
         path:'/back',
         component:BackendLayout,
