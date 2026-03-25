@@ -3,8 +3,6 @@
   <el-aside width="264px">
     <el-menu
         default-active="2"
-        @open="handleOpen"
-        @close="handleClose"
         class="menu-style"
       >
         <div class="brand">
@@ -14,7 +12,7 @@
                 <p class="brand-subtitle">管理后台</p>
             </div>
         </div>
-        <el-menu-item v-for="item in router.options.routes[0].children" :key="item.path" :index="item.path">
+        <el-menu-item @click="selectMenu" v-for="item in router.options.routes[0].children" :key="item.path" :index="item.path">
             <!-- 动态组件component传入图标，实现组件渲染 -->
           <el-icon><component :is="item.meta.icon" /></el-icon>
           <span>{{item.meta.title}}</span>
@@ -26,20 +24,16 @@
 
 <script setup>
 import {useRouter} from 'vue-router'
+const router=useRouter()
 
 const iconUrl = new URL('/src/assets/images/机器人.png', import.meta.url).href
 
-const router=useRouter()
-
-console.log(router,'router')
-
-const handleOpen=(key)=>{
+const selectMenu=(key)=>{
     console.log(key)
+    const currentRoute=router.options.routes[0]
+    router.push(`${currentRoute.path}/${key.index}`)
 }
 
-const handleClose=(key)=>{
-    console.log(key)
-}
 </script>
 
 <style lang="scss" scoped>

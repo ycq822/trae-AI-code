@@ -2,8 +2,10 @@
   <div class="backend-layout">
     <el-container class="main-container">
       <Sidebar/>
-      <el-container>
-        <Navbar/>
+      <el-container direction="vertical">
+        <el-header height="60px">
+          <Navbar/>
+        </el-header>
         <el-main>
             <router-view></router-view>
         </el-main>
