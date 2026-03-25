@@ -1,10 +1,12 @@
 <template>
   <div class="backend-layout">
-    <el-container>
-      <Sidebar/>
-      <el-container>
-        <Navbar/>
-        <el-main>Main</el-main>
+    <el-container class="main-container">
+      <Sidebar />
+      <el-container direction="vertical">
+        <Navbar />
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -13,11 +15,14 @@
 <script setup>
 import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue'
-
 </script>
 
 <style lang="scss" scoped>
 .backend-layout {
   height: 100vh;
+}
+
+.main-container {
+  height: 100%;
 }
 </style>
