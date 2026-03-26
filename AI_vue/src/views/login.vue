@@ -35,6 +35,10 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+//引入登录接口，拿到异步结果
+import { login } from '@/api/admin'
+
+
 
 const loginFormRef = ref()
 const formData = reactive({
@@ -49,11 +53,28 @@ const rules = reactive({
         { required: true, message: '请输入密码', trigger: 'blur' }
     ]
 })
+
+//登录提交
 const submitForm = async (formEl) => {
     if(!formEl) return
     await formEl.validate((valid,fields)=>{
         if(valid){
-            console.log(fields)
+            //登录提交; .then拿到异步结果
+            login(formData).then(data=>{
+                //判断token是否存在
+                if(!data.token){
+                    return console.error('登录失败')
+                }
+                //登录成功，保存token和用户信息
+                localStorage.setItem('token',data.token)
+                localStorage.setItem('userInfo',JSON.stringify(data.userInfo))
+                // if(data.code===200){
+                    //登录成功后，将token存储到localStorage
+                    // ElMessage.success('登录成功')
+                    //登录成功后，跳转到首页
+                    // router.push('/')
+                // }
+            })
         }
     })
 }
