@@ -21,6 +21,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .page-head {
+    margin-bottom: 20px;
     // height: 60px;
     display: flex;
     align-items: center;
