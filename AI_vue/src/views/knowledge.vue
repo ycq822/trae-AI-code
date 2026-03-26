@@ -7,9 +7,34 @@
                 <el-button type="primary">编辑</el-button>
             </template>
         </PageHead>
+        <TableSearch :formItems="formItems" @search="handleSearch"/>
     </div>
 </template>
 
 <script setup>
 import PageHead from '@/components/PageHead.vue'
+import TableSearch from '@/components/TableSearch.vue'
+const formItems=[
+    {
+        comp:'input',
+        prop:'title',
+        label:'文章标题',
+        placeholder:'请输入文章标题',
+    },
+    {
+        comp:'select',
+        prop:'categoryId',
+        label:'分类',
+        placeholder:'请选择分类',
+        options:[
+            {label:'心理健康基础',value:'1'},
+            {label:'情绪管理',value:'2'},
+            
+        ]
+    }
+]
+// v-on_@执行回调函数，接收搜索参数，提供封装信息
+const handleSearch=()=>{
+    
+}
 </script>
