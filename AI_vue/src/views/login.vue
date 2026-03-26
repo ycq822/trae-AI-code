@@ -37,6 +37,7 @@
 import { ref, reactive } from 'vue'
 //引入登录接口，拿到异步结果
 import { login } from '@/api/admin'
+import { useRouter } from 'vue-router'
 
 
 
@@ -55,6 +56,7 @@ const rules = reactive({
 })
 
 //登录提交
+const router = useRouter()
 const submitForm = async (formEl) => {
     if(!formEl) return
     await formEl.validate((valid,fields)=>{
@@ -68,12 +70,12 @@ const submitForm = async (formEl) => {
                 //登录成功，保存token和用户信息
                 localStorage.setItem('token',data.token)
                 localStorage.setItem('userInfo',JSON.stringify(data.userInfo))
-                // if(data.code===200){
-                    //登录成功后，将token存储到localStorage
-                    // ElMessage.success('登录成功')
-                    //登录成功后，跳转到首页
-                    // router.push('/')
-                // }
+                // 根据用户角色决定
+                if(data.userInfo.userType === 2){
+                    router.push('/back/dashboard')
+                }else{
+                    
+                }
             })
         }
     })
