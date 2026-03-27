@@ -42,6 +42,15 @@
                     </div>
                 </div>
             </el-form-item>
+            <el-form-item label="文章内容" prop="content">
+                <RichTextEditor 
+                    v-model="formData.content" 
+                    placeholder="请输入文章内容"
+                    :maxlength="5000"
+                    @change="handleContentChange"
+                    @created="handleEditorCreated"
+                    min-height="400px" />
+            </el-form-item>
         </el-form>
     </el-dialog>
 </template>
@@ -51,6 +60,7 @@ import { ref,reactive,computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps({
     modelValue:{
@@ -128,7 +138,14 @@ const handleRemove = () => {
     imgUrl.value = ''
     formData.coverImage = ''
 }
+//富文本
+const handleContentChange = () => {
+}
+//富文本创建
+const handleEditorCreated = () => {
+}
 </script>
+
 <style lang="scss" scoped>
 .cover-placeholder{
     display: flex;
