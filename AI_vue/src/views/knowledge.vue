@@ -3,8 +3,7 @@
         <PageHead title="知识文章">
             <!-- 具名插槽 -->
             <template #buttons>
-                <el-button type="primary">新增</el-button>
-                <el-button type="primary">编辑</el-button>
+                <el-button @click="dialogVisible = true" type="primary">新增</el-button>
             </template>
         </PageHead>
         <TableSearch :formItems="formItems" @search="handleSearch"/>
@@ -27,8 +26,8 @@
                 </template>
             </el-table-column>
             <el-table-column prop="authorName" label="作者" width="150"></el-table-column>
-            <el-table-column prop="readCount" label="阅读量" width="150"></el-table-column>
-            <el-table-column prop="publishedAt" label="发布时间" width="150"></el-table-column>
+            <el-table-column prop="readCount" label="阅读量" width="100"></el-table-column>
+            <el-table-column prop="publishedAt" label="发布时间" width="170"></el-table-column>
             <el-table-column label="操作" width="225" fixed="right">
                 <template #default="scope">
                     <el-button text type="primary" >编辑</el-button>
@@ -45,6 +44,8 @@
         layout="prev,pager,next"
         :total="pagination.total"
         @change="handleChange" />
+        <!-- 文章详情弹窗 -->
+        <ArticleDialog v-model:modelValue="dialogVisible" :categories="categories" />
     </div>
 </template>
 
@@ -53,6 +54,7 @@ import PageHead from '@/components/PageHead.vue'
 import TableSearch from '@/components/TableSearch.vue'
 import { categoryTree,articlePage } from '@/api/admin'
 import { onMounted, ref, reactive } from 'vue'
+import ArticleDialog from '@/components/ArticleDialog.vue'
 
 const formItems=[
     {
@@ -121,10 +123,13 @@ const handleChange=(page)=>{
 const categoryMap = reactive({})
 
 //分类列表，存储分类下拉框的选项数据
-const categorises= ref([])
+const categories= ref([])
 
 //列表数据，定义ref以便赋值
 const tableData = ref([])
+
+// 新增———— 文章详情弹窗显示状态
+const dialogVisible = ref(false)
 
 
 
@@ -132,7 +137,7 @@ onMounted(async()=>{
     //等待封装好的获取请求接口categoryTree返回数据
     const data = await categoryTree()
 
-    categorises.value = data.map(item=>{
+    categories.value = data.map(item=>{
         categoryMap[item.id] = item.categoryName
         //将后端返回的数据结构转换为 UI 组件所需的 { label, value } 格式
         return {
@@ -140,7 +145,7 @@ onMounted(async()=>{
             value:item.id
         }
     })
-    formItems[1].options = categorises.value
+    formItems[1].options = categories.value
 
     //获取列表
     handleSearch()
