@@ -29,6 +29,7 @@
                         action="#"
                         :before-upload="beforeUpload"
                         :http-request="handleUploadRequest"
+                        :show-file-list="false"
                         accept="image/*"
                     >
                         <div v-if="!imgUrl" class="cover-placeholder">
@@ -37,7 +38,7 @@
                         <img v-else class="cover-image" :src="imgUrl" alt="封面图片" />
                     </el-upload>
                     <div v-if="imgUrl" class="cover-remove">
-                        <el-button type="danger" size="mini" @click="handleRemove">移除封面</el-button>
+                        <el-button type="danger" size="small" @click="handleRemove">移除封面</el-button>
                     </div>
                 </div>
             </el-form-item>
@@ -120,6 +121,12 @@ const handleUploadRequest = async ({file}) => {
     //拼接完整的图片地址
     imgUrl.value=fileBaseUrl+fileRes.filePath
     formData.coverImage=fileRes.filePath
+}
+
+//移除封面
+const handleRemove = () => {
+    imgUrl.value = ''
+    formData.coverImage = ''
 }
 </script>
 <style lang="scss" scoped>
