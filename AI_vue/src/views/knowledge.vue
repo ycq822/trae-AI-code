@@ -38,6 +38,13 @@
                 </template>
             </el-table-column>
         </el-table>
+        <!-- 分页组件 -->
+        <el-pagination 
+        style="margin-top: 25px"
+        :page-size="pagination.size"
+        layout="prev,pager,next"
+        :total="pagination.total"
+        @change="handleChange" />
     </div>
 </template>
 
@@ -99,13 +106,18 @@ const handleSearch=async (formData)=>{
         
     }
     //调用分页查询接口，请求分页数据
-    const data = await articlePage(params)
+    const {records,total} = await articlePage(params)
     //更新表格数据
-    tableData.value = data.records
+    tableData.value = records
+    //更新分页参数
+    pagination.total = total
     
 }
-
-// 响应式数据，建立 ID 到名称的映射，用于详情展示
+const handleChange=(page)=>{
+    pagination.currentPage = page
+    handleSearch()
+}
+// 分类映射，建立 ID 到名称的映射，用于详情展示
 const categoryMap = reactive({})
 
 //分类列表，存储分类下拉框的选项数据
