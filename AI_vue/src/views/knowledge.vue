@@ -27,7 +27,7 @@
             </el-table-column>
             <el-table-column prop="authorName" label="作者" width="150"></el-table-column>
             <el-table-column prop="readCount" label="阅读量" width="100"></el-table-column>
-            <el-table-column prop="updateAt" label="发布时间" width="170"></el-table-column>
+            <el-table-column prop="createdAt" label="发布时间" width="160"></el-table-column>
             <el-table-column label="操作" width="225" fixed="right">
                 <template #default="scope">
                     <el-button @click="handleEdit(scope.row)" text type="primary" >编辑</el-button>
@@ -132,19 +132,25 @@ const tableData = ref([])
 const dialogVisible = ref(false)
 const currentArticle = ref(null)
 const handleSuccess=()=>{
+    dialogVisible.value = false
+    //刷新列表
+    handleSearch()
 }
 const handleEdit=(row)=>{
     if(!row.id){
         currentArticle.value = null
         dialogVisible.value = true
-    }
+    }else{
     //调用获取文章详情接口，请求文章详情数据
     getArticleDetail(row.id).then(res=>{
         console.log(res,'编辑详情')
         currentArticle.value = res
         dialogVisible.value = true
     })
+    }
 }
+    
+
 
 
 

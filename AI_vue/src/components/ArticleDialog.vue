@@ -67,7 +67,7 @@
 <script setup>
 import { ref,reactive,computed,nextTick,watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { uploadFile,createArticle } from '@/api/admin'
+import { uploadFile,createArticle,updateArticle } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
@@ -109,7 +109,7 @@ watch(()=>props.article, (newVal) => {
 
 const handleClose=()=>{
     //重置表单
-    formRef.value.resetFields()
+    formRef.value?.resetFields()
     //重置businessId
     businessId.value = null
     //重置标签
@@ -117,7 +117,6 @@ const handleClose=()=>{
     //重置封面图片和数据
     handleRemove()
     emit('update:modelValue',false)
-
 }
 const formData = reactive({
     "title": "",
@@ -125,7 +124,7 @@ const formData = reactive({
     "coverImage": "",
     "categoryId": "",
     "summary": "",
-    "tags": "",
+    "tags": [],
     "id": ""
 })
 const rules = reactive({
@@ -211,17 +210,34 @@ const handleSubmit = () => {
             tags:formData.tags.join(',')
         }
         // delete submitData.tags
-        createArticle(submitData).then(res=>{
+        if(!isEdit.value){
+            submitData.id = businessId.value
+            //新增
+            createArticle(submitData).then(res=>{
             loading.value = false
             emit('success')
-
+        
             // if(res.code==200){
             //     ElMessage.success('创建文章成功')
             //     dialogVisible.value = false
             // }
-        })
+            })
         
-    })
+        }else{
+            //编辑
+            updateArticle(businessId.value,submitData).then(res=>{
+                loading.value = false
+                emit('success')
+
+            // if(res.code==200){
+            //     ElMessage.success('更新文章成功')
+            //     dialogVisible.value = false
+            // }
+            })
+        }
+        
+        })
+    
     // loading.value = true
     // await nextTick()
     
