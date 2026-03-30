@@ -52,7 +52,7 @@ const props = defineProps({
   },
   maxCharCount: {
     type: Number,
-    default: 2000
+    default: 5000
   },
   showWordCount: {
     type: Boolean,

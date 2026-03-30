@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        title="文章详情"
+        :title="isEdit ? '编辑文章' : '新增文章' "
         v-model="dialogVisible"
         width="50%"
         @close="handleClose"
@@ -52,13 +52,22 @@
                     min-height="400px" />
             </el-form-item>
         </el-form>
+        <div v-if="btnPreview">
+            <h3>内容预览</h3>
+            <div v-html="formData.content"></div>
+        </div>
+        <template #footer>
+            <el-button @click="btnPreview = !btnPreview">{{btnPreview ?'隐藏预览' : '预览效果'}}</el-button>
+            <el-button @click="handleClose">取消</el-button>
+            <el-button type="primary" @click="handleSubmit" :loading="loading">{{isEdit ? '更新文章' : '创建文章'}}</el-button>
+        </template>
     </el-dialog>
 </template>
 
 <script setup>
-import { ref,reactive,computed } from 'vue'
+import { ref,reactive,computed,nextTick,watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { uploadFile } from '@/api/admin'
+import { uploadFile,createArticle } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
@@ -70,21 +79,51 @@ const props = defineProps({
     categories:{
         type:Array,
         default:()=>[]
+    },
+    article:{
+        type:Object,
+        default:null//需要判断是新增还是编辑
     }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue','success'])
 
 const dialogVisible = computed({
     get() {return props.modelValue},
     set:(val)=>emit('update:modelValue',val)
 })
+const isEdit = computed(()=>!!props.article?.id)
+
+
+// 监听编辑数据，更新表单数据
+watch(()=>props.article, (newVal) => {
+    if (newVal && newVal.id) {
+        //对象属性合并，newVal覆盖注入到formData，可浅拷贝
+        Object.assign(formData, newVal)
+        //使用现有id
+        businessId.value=newVal.id
+        //封面url
+        imgUrl.value=fileBaseUrl+newVal.coverImage
+        // formData.coverImage=newVal.coverImage
+    }
+})
+
 const handleClose=()=>{
+    //重置表单
+    formRef.value.resetFields()
+    //重置businessId
+    businessId.value = null
+    //重置标签
+    formData.tags = []
+    //重置封面图片和数据
+    handleRemove()
+    emit('update:modelValue',false)
+
 }
 const formData = reactive({
     "title": "",
     "content": "",
     "coverImage": "",
-    "categoryId": 1,
+    "categoryId": "",
     "summary": "",
     "tags": "",
     "id": ""
@@ -97,12 +136,11 @@ const rules = reactive({
     categoryId:[
         {  required:true,message:'请选择分类',trigger:'change' }
     ],
-    // summary:[
-    //     {  max:1000,message:'文章摘要最多1000个字符',trigger:'blur' }
-    // ],
-    // tags:[
-    //     {  required:true,message:'请选择文章标签',trigger:'change' }
-    // ]
+    content:[
+        {  required:true,message:'请输入文章内容',trigger:'blur' },
+        {  max:5000,message:'文章内容最多5000个字符',trigger:'blur' }
+    ],
+    
 })
 const commonTags = [ '情绪管理','焦虑','抑郁','压力','睡眠','冥想','正念','放松','心理健康','自我成长','人际关系','工作压力','学习方法','生活技巧']
 //上传
@@ -120,11 +158,13 @@ const beforeUpload = (file) => {
     }
     return isImage;
 }
+// businessId = ref('')
+const businessId = ref(null)
 const handleUploadRequest = async ({file}) => {
     //UUID生成,加密
-    const businessId=crypto.randomUUID()
+    businessId.value=crypto.randomUUID()
     const fileRes=await uploadFile(file,{
-        businessId:businessId
+        businessId:businessId.value
     })
     console.log(fileRes,'上传文件')
 
@@ -139,10 +179,54 @@ const handleRemove = () => {
     formData.coverImage = ''
 }
 //富文本
-const handleContentChange = () => {
+const handleContentChange = (data) => {
+    console.log(data,'富文本内容')
+    formData.content = data.html
 }
 //富文本创建
-const handleEditorCreated = () => {
+const editorInstance = ref(null)
+const handleEditorCreated = (editor) => {
+    //编辑
+    if(formData.content && editor){
+        //等待富文本实例创建完成
+        nextTick(()=>{
+            //设置富文本内容
+            editor.setHtml(formData.content)
+        })
+    }
+}
+const btnPreview = ref(false)
+//提交
+const formRef = ref()
+const loading = ref(false)
+const handleSubmit = () => {
+    formRef.value.validate((valid,fields)=>{
+        if(valid){
+            loading.value = true
+            
+        }
+        console.log(formData,'FormData')
+        const submitData = {
+            ...formData,
+            tags:formData.tags.join(',')
+        }
+        // delete submitData.tags
+        createArticle(submitData).then(res=>{
+            loading.value = false
+            emit('success')
+
+            // if(res.code==200){
+            //     ElMessage.success('创建文章成功')
+            //     dialogVisible.value = false
+            // }
+        })
+        
+    })
+    // loading.value = true
+    // await nextTick()
+    
+    // loading.value = false
+    
 }
 </script>
 
