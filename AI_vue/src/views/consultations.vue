@@ -15,7 +15,7 @@
                 </template>
             </el-table-column>
             <el-table-column prop="messageCount" label="消息数" width="100" />
-            <el-table-column prop="lastMessageTime" label="时间" width="100" />
+            <el-table-column prop="lastMessageTime" label="时间" width="130" />
             <el-table-column label="操作" width="100" >
                 <template #default="scope">
                     <el-button type="primary" text @click="viewSessionDetail(scope.row)">详情</el-button>
