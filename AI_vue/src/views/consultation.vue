@@ -43,28 +43,117 @@
                         <div class="message-time">刚刚</div>
                     </div>
                  </div>
-                <!-- <div v-for="msg in message" :key="msg.id" class="message-item">
-                    <div class="message-content">
-                        {{ msg.content }}
-                    </div>
-                </div> -->
             </div>
+            <!-- 消息输入区域 -->
+             <div class="chat-input">
+                <div class="input-container">
+                    <el-input 
+                        v-model="userMessage" 
+                        placeholder="请输入您想要分享的内容..."
+                        type="textarea"
+                        :rows="3"
+                        :disabled="isAiTyping"
+                        @keydown="handleKeyDown"
+                        class="message-input"
+                        clearable
+                    >
+                </el-input>
+                </div>
+                <el-button class="send-btn" type="primary" @click="sendMessage">
+                    <el-icon> 
+                        <Promotion />
+                    </el-icon>
+                </el-button>
+             </div>
         </div>
     </div>
 </template>
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
+import { startSession } from '@/api/frontend'
+import { ElMessage } from 'element-plus'
+
+
 
 const iconUrl=new URL('@/assets/images/robot-fill.png',import.meta.url).href
 const iconUrl1=new URL('@/assets/images/like.png',import.meta.url).href
 
-const createNewFrontendSession = () => {
-
-}
-
 //定义对话消息数组
 const message = ref([])
+//定义用户输入的消息
+const userMessage = ref('')
+//定义AI是否正在回复
+const isAiTyping = ref(false)
+//定义一个当前会话对象
+const currentSession = ref(null)
+
+//定义处理键盘事件的函数
+const handleKeyDown = (e) => {
+    if(e.key === 'Enter'){
+        e.preventDefault()
+    }
+}
+
+//新建会话
+const createNewFrontendSession = () => {
+    const newSession = {
+        sessionId: `temp-${Date.now()}`,
+        status:'TEMP',//临时会话
+        sessionTitle:'新会话'
+    }
+    currentSession.value = newSession
+}
+//用户发送消息
+const sendMessage = () => {
+    if(!userMessage.value.trim()) return
+    //发送消息到后端
+    if(isAiTyping.value){
+        ElMessage.error('AI助手正在输入中，请稍后')
+        return
+    }
+    const message=userMessage.value.trim()
+    userMessage.value=''
+
+    //如果没有会话/临时会话，就创建一个新会话
+    if(currentSession.value.status === 'TEMP'){
+        startNewSession(message)
+    }
+}
+
+const startNewSession = (message) => {
+    const sessionParams = {
+        initialMessage: message,
+    }
+    if(currentSession.value.status === '新会话'){
+        sessionParams.sessionTitle = `小鱼AI助手 - ${new Date().toLocaleString()}`
+    }else{
+        //若是历史会话记录
+        sessionParams.sessionTitle = currentSession.value.sessionTitle
+    }
+    //调用后端接口，创建新会话
+    startSession(sessionParams).then(res=>{
+        //将后端返回的数据转为前端会话格式
+        const sessionData={
+            sessionId: res.sessionId,
+            status:res.status,//活跃会话
+            sessionTitle: sessionParams.sessionTitle,
+        }
+        //判断当前是否有会话记录，若有，就更新会话记录
+        if(currentSession.value && currentSession.value.status === 'TEMP'){
+            Object.assign(currentSession.value,sessionData)
+        }else{
+            //若无，就创建一个新会话
+            currentSession.value = sessionData
+        }
+    })
+}
+
+onMounted(() => {
+    //初始化时创建一个新会话
+    createNewFrontendSession()
+})
+
+
 </script>
 <style lang="scss" scoped>
 .consultation-container {
