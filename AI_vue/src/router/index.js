@@ -111,7 +111,11 @@ router.beforeEach((to,from,next)=>{
                 next('/back/dashboard')
             }
         }else if(userInfo.userType==1){
-            
+            if(to.path.startsWith('/back') || to.path.startsWith('/auth')){
+                next('/')
+            }else{
+                next()
+            }
         }
     }else{//未登录
         if(to.path.startsWith('/back')){
