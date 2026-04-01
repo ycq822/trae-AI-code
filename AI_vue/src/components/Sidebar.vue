@@ -4,7 +4,7 @@
     <el-menu
         :collapse="isCollapse"
         :collapse-transition="false"
-        :default-active="2"
+        :default-active="router.currentRoute.value.path"
         class="menu-style"
         
       >
@@ -43,12 +43,10 @@ const selectMenu=(key)=>{
     const currentRoute=router.options.routes[0]
     router.push(`${currentRoute.path}/${key.index}`)
 }
-
 </script>
 
 <style lang="scss" scoped>
 .menu-style {
-    
     height: 100%;
     .brand {
     display: flex;
@@ -69,7 +67,7 @@ const selectMenu=(key)=>{
             color: #606266;
         }
     }
-}
+    }
 }
 
 </style>
