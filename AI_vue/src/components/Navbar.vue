@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import {ElDropdown} from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import {useAdminStore} from '@/stores/admin'
 //路由实例，路由对象
 import { useRouter, useRoute } from 'vue-router'

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BackendLayout from '@/components/BackendLayout.vue'
 import AuthLayout from '@/components/AuthLayout.vue'
+import FrontendLayout from '@/components/FrontendLayout.vue'
 
 //路由配置
 const backendRoutes=[
@@ -66,10 +67,26 @@ const backendRoutes=[
         ]
     }
 ]
-
+const frontendRoutes=[
+    {
+        path:'/',
+        redirect:'/knowledge',
+        component:FrontendLayout,
+        children:[
+            {
+                path:'knowledge',
+                component:()=>import('@/views/knowledge.vue'),
+                meta:{
+                    title:'知识文章',
+                    icon:'ChatLineSquare'
+                }
+            }
+        ]
+    }
+]
 const router = createRouter({
     history:createWebHistory(),
-    routes:backendRoutes
+    routes:backendRoutes.concat(frontendRoutes)
 })
 
 //路由前置守卫
