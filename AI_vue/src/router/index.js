@@ -74,12 +74,20 @@ const frontendRoutes=[
         component:FrontendLayout,
         children:[
             {
+                path:'',
+                component:()=>import('@/views/home.vue')
+            },
+            {
+                path:'consultation',
+                component:()=>import('@/views/consultation.vue')
+            },
+            {
+                path:'emotion-diary',
+                component:()=>import('@/views/emotionDiary.vue')
+            },
+            {
                 path:'knowledge',
-                component:()=>import('@/views/knowledge.vue'),
-                meta:{
-                    title:'知识文章',
-                    icon:'ChatLineSquare'
-                }
+                component:()=>import('@/views/frontendKnowledge.vue')
             }
         ]
     }

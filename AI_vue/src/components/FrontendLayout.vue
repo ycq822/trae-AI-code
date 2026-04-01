@@ -1,12 +1,45 @@
 <template>
     <div class="frontend-layout">
-        <div class="navbar-container"></div>
-        <div class="main-content"></div>
-        <div class="footer-container"></div>
+        <div class="navbar-container">
+            <div class="brand-section">
+                <el-image style="width: 50px; height: 50px;" :src="iconUrl" alt="logo" class="brand-logo"></el-image>
+                <h1 class="brand-name">心理健康AI助手</h1>
+            </div>
+            <div class="nav-section">
+                <router-link to="/" class="nav-link" >首页</router-link>
+                <router-link to="/consultation" class="nav-link" v-if="isLoggedIn" >AI咨询</router-link>
+                <router-link to="/emotion-diary" class="nav-link" v-if="isLoggedIn" >情绪日记</router-link>
+                <router-link to="/knowledge" class="nav-link" >知识库</router-link>
+                <el-button v-if="isLoggedIn" size="medium">退出登录</el-button>
+                <template v-else>
+                    <router-link to="/auth/login" class="nav-link">登录</router-link>
+                    <router-link to="/auth/register" class="nav-link">
+                        <el-button type="primary">注册</el-button>
+                    </router-link>
+                </template>
+            </div>
+        </div>
+        <div class="main-content">
+            <router-view></router-view>
+        </div>
+        <div class="footer-container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 心理健康AI助手. All rights reserved.</p>
+            </div>
+        </div>
     </div>
 </template>
 <script setup>
+import { ref, onMounted } from 'vue'
 
+const iconUrl=new URL('@/assets/images/机器人.png',import.meta.url).href
+
+const isLoggedIn = ref(false)
+
+onMounted(()=>{
+    isLoggedIn.value = localStorage.getItem('token') !== null
+    console.log(isLoggedIn.value)
+})
 </script>
 
 <style lang="scss" scoped>
