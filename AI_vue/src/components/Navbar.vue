@@ -5,7 +5,7 @@
             <el-button @click="handleCollapse">
                 <el-icon><Expand></Expand></el-icon>
             </el-button>
-            <p class="page-title">导航栏</p>
+            <p class="page-title">{{route.meta.title}}</p>
         </div>
         <div class="flex-box">
             <el-dropdown @command="handleCommand">
@@ -29,10 +29,28 @@
 <script setup>
 import {ElDropdown} from 'element-plus'
 import {useAdminStore} from '@/stores/admin'
+//路由实例，路由对象
+import { useRouter, useRoute } from 'vue-router'
+import { Expand, ArrowDown } from '@element-plus/icons-vue'
+import { logout } from '@/api/admin'
+
+const router=useRouter()
+const route=useRoute()
 
 const handleCommand=(command)=>{
     if(command==='logout'){
-        // 退出登录
+        ElMessageBox.confirm('确定退出登录吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            // 退出登录
+            logout().then(res=>{
+                localStorage.removeItem('token')
+                localStorage.removeItem('userInfo')
+                    router.push('/auth/login')
+            })
+        })
     }
 }
 
