@@ -16,29 +16,29 @@
                 </el-card>
             </el-col>
             <el-col :span="6">
-                <el-card v-if="aiData.consultationStats">
+                <el-card v-if="aiData.systemOverview">
                     <div class="card-content">
                         <div class="avatar like">
                             <el-image :src="iconUrl2" style="width: 40px; height: 40px;"></el-image>
                         </div>
                         <div class="info">
                             <p class="title">情绪日志</p>
-                            <p class="number">{{aiData.consultationStats.totalDiaries}}</p>
-                            <p class="subtitle-title">今日新增: {{aiData.consultationStats.todayNewDiaries}}</p>
+                            <p class="number">{{aiData.systemOverview.totalDiaries}}</p>
+                            <p class="subtitle-title">今日新增: {{aiData.systemOverview.todayNewDiaries}}</p>
                         </div>
                     </div>
                 </el-card>
             </el-col>
             <el-col :span="6">
-                <el-card v-if="aiData.consultationStats">
+                <el-card v-if="aiData.systemOverview">
                     <div class="card-content">
                         <div class="avatar comments">
                             <el-image :src="iconUrl3" style="width: 40px; height: 40px;"></el-image>
                         </div>
                         <div class="info">
                             <p class="title">咨询会话</p>
-                            <p class="number">{{aiData.consultationStats.totalSessions}}</p>
-                            <p class="subtitle-title">今日新增: {{aiData.consultationStats.todayNewSessions}}</p>
+                            <p class="number">{{aiData.systemOverview.totalSessions}}</p>
+                            <p class="subtitle-title">今日新增: {{aiData.systemOverview.todayNewSessions}}</p>
                         </div>
                     </div>
                 </el-card>
