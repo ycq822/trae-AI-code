@@ -11,6 +11,56 @@
                     在线服务中
                 </div>
             </div>
+            <!-- 情绪花园 -->
+             <div class="emotion-garden">
+                <div class="garden-header">
+                    <div class="garden-title"> 情绪花园 </div>
+                </div>
+                <div class="emotion-info">
+                    <div class="emotion-name">{{ currentEmotion.primaryEmotion }}</div>
+                    <div class="emotion-score">{{ currentEmotion.emotionScore }}</div>
+                </div>
+                <div class="warm-tips">
+                    <div class="emotion-status-text">
+                        <span class="status-label">今天感觉</span>
+                        <span class="status-emotion">{{ currentEmotion.isNegative?'需要关注':'很不错' }}</span>
+                    </div>
+                    <div class="emotion-intensity">
+                        <span class="intensity-dots">
+                            <span v-for="dot in 3" :key="dot" class="dot" :class="{'active':getIntensityClass(currentEmotion.emotionScore) >= dot}"></span>
+                        </span>
+                        <span class="intensity-text">
+                            {{ getRiskText(currentEmotion.emotionScore)  }}
+                        </span>
+                    </div>
+                    <!-- 温暖建议卡片 -->
+                    <div class="warm-suggestion" v-if="currentEmotion.suggestion">
+                        <div class="suggestion-icon">💝</div>
+                        <div class="suggestion-content">
+                            <div class="suggestion-title">给你的小建议</div>
+                            <div class="suggestion-text">{{ currentEmotion.suggestion }}</div>
+                        </div>
+                    </div>
+                    <!-- 治愈行动 -->
+                     <div class="healing-actions" v-if="currentEmotion.improvementSuggestions.length > 0">
+                        <div class="actions-title">治愈小行动</div>
+                        <div class="actions-list">
+                            <div v-for="item in currentEmotion.improvementSuggestions" :key="item" class="action-item">
+                                <div class="action-icon">✨</div>
+                                <div class="action-text">{{ item }}</div>
+                            </div>
+                        </div>
+                     </div>
+                     <!-- 风险提示 -->
+                      <div class="risk-notice" v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1">
+                        <div class="notice-icon">🤗</div>
+                        <div class="notice-content">
+                            <div class="notice-title">温馨提示</div>
+                            <div class="notice-text">{{ currentEmotion.riskDescription }}</div>
+                        </div>
+                      </div>
+                </div>
+             </div>
             <!-- 会话列表 -->
             <div class="session-history">
                 <h4 class="session-title">会话列表</h4>
@@ -138,7 +188,7 @@
 </template>
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { startSession,getSessionList, deleteSession,getSessionDetail } from '@/api/frontend'
+import { startSession,getSessionList, deleteSession,getSessionDetail,getSessionEmotion } from '@/api/frontend'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Clock, DeleteFilled, Plus, Promotion, ChatRound } from '@element-plus/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
@@ -159,8 +209,51 @@ const isAiTyping = ref(false)
 //定义一个当前会话对象
 const currentSession = ref(null)
 const sessionList = ref([])
+//情绪花园
+const currentEmotion=ref({
+    primaryEmotion:'中性',
+    emotionScore:50,
+    isNegative:false,
+    riskLevel:0,
+    suggestion:'情绪状态平稳',
+    improvementSuggestions:[]
+})
 
+const loadSessionEmotion=(sessionId)=>{
+    //确保sessionID格式正确
+    const id=sessionId.toString().startsWith('session_') ? sessionId:`session_${sessionId}`
 
+    //调用后端接口，获取情绪描述
+    getSessionEmotion(id).then(res=>{
+        console.log(res)
+        currentEmotion.value=res
+    })
+}
+
+const getIntensityClass =(score)=>{
+    if(score >= 61){
+        return 3
+    }
+    if(score >= 31){
+        return 2
+    }
+    return 1
+}
+
+const getRiskText=(level)=>{
+    switch(level){
+        case 0:
+            return '正常'
+        case 1:
+            return '关注'
+        case 2:
+            return '预警'
+        case 3:
+            return '危机'
+        default:
+            return '正常'
+    }
+}
 //定义处理键盘事件的函数
 const handleKeyDown = (e) => {
     if(e.key === 'Enter' && !e.shiftKey){
@@ -176,6 +269,8 @@ const createNewFrontendSession = () => {
         sessionTitle:'新会话'
     }
     currentSession.value = newSession
+    // 清空当前对话消息，以便显示欢迎用语
+    messages.value = []
 }
 //用户发送消息
 const sendMessage = () => {
@@ -288,6 +383,8 @@ const startAIResponse = (sessionId,userMessage) => {
             if(eventName==='done'){
                 isAiTyping.value = false
                 ctrl.abort()
+                //进行情绪分析
+                loadSessionEmotion(currentSession.value.sessionId)
                 return
             }
             const payload= JSON.parse(raw)
@@ -306,6 +403,7 @@ const startAIResponse = (sessionId,userMessage) => {
         },
         onclose:()=>{
             //开始情绪分析
+            loadSessionEmotion(currentSession.value.sessionId)
         }
     })
     
@@ -337,6 +435,8 @@ const handleSessionClick = (session) => {
         console.log(res)
         messages.value = res
     })
+    //加载会话情绪分析
+    loadSessionEmotion(session.id)
     //更新当前会话记录
     const sessionData = {
         sessionId: "session_"+session.id,
